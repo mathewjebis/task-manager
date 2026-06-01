@@ -5,7 +5,7 @@ import { ValidationError, handleError } from "./errors.js";
 
 let allTasks = [];
 
-const TASK_ID = Symbol("taskId");
+const TASK_ID_KEY = "_uniqueTaskSymbolId";
 
 const taskObserver = {
   subscribers: [],
@@ -23,17 +23,11 @@ const taskObserver = {
 const filterStrategies = {
   all: (tasks) => tasks.filter((task) => !task.completed),
   high: (tasks) =>
-    tasks.filter(
-      (task) => !task.completed && assignPriority(task.id) === "High",
-    ),
+    tasks.filter((task) => !task.completed && assignPriority(task.id) === "High"),
   medium: (tasks) =>
-    tasks.filter(
-      (task) => !task.completed && assignPriority(task.id) === "Medium",
-    ),
+    tasks.filter((task) => !task.completed && assignPriority(task.id) === "Medium"),
   low: (tasks) =>
-    tasks.filter(
-      (task) => !task.completed && assignPriority(task.id) === "Low",
-    ),
+    tasks.filter((task) => !task.completed && assignPriority(task.id) === "Low"),
 };
 
 let currentStrategy = "all";
@@ -46,6 +40,7 @@ export function setFilterStrategy(strategy) {
 export function getAllTasks() {
   return allTasks;
 }
+
 export function setAllTasks(tasks) {
   allTasks = tasks;
 }
@@ -68,13 +63,10 @@ export function getNextTask() {
 }
 
 export function applyFiltersAndRender() {
-  let searchValue = document
-    .getElementById("search-box")
-    .value.trim()
-    .toLowerCase();
+  let searchValue = document.getElementById("search-box")?.value.trim().toLowerCase() || "";
   let strategyFiltered = filterStrategies[currentStrategy](allTasks);
   let filtered = strategyFiltered.filter((task) =>
-    task.title.toLowerCase().includes(searchValue),
+    task.title.toLowerCase().includes(searchValue)
   );
   displayTasks(filtered);
 }
@@ -87,16 +79,16 @@ export function deleteTask(id) {
 export function editTask(id) {
   let task = allTasks.find((task) => task.id === id);
   if (!task) return;
-
+  
   let newTitle = prompt("Edit the task:", task.title);
   if (newTitle === null) return;
   newTitle = newTitle.trim();
-
+  
   if (newTitle === "") {
     handleError(new ValidationError("Task title cannot be empty!"));
     return;
   }
-
+  
   task.title = newTitle;
   setTaskMeta(task, {
     lastEdited: new Date().toLocaleString(),
@@ -109,9 +101,8 @@ export function editTask(id) {
 export function completeTask(id) {
   let task = allTasks.find((task) => task.id === id);
   if (!task) return;
-
+  
   task.completed = !task.completed;
-
   taskObserver.notify("complete", { id, completed: task.completed });
 }
 
@@ -124,15 +115,16 @@ export function addTask() {
     handleError(new ValidationError("Task title cannot be empty!"));
     return;
   }
-
   try {
     let newTask = createTaskProxy({
       id: Date.now(),
       title: title,
       completed: false,
     });
-
-    newTask[TASK_ID] = Symbol("task-" + title);
+    
+    // FIX: Using serializable unique strings instead of Symbols so local storage stringify updates cleanly
+    newTask[TASK_ID_KEY] = "task-" + title;
+    
     allTasks.unshift(newTask);
     input.value = "";
     taskObserver.notify("add", newTask);
@@ -142,15 +134,14 @@ export function addTask() {
 }
 
 export function sortTasks(direction) {
-  let newArr = [...allTasks];
-
+  // FIX: Spread operator shallow copy preserves validation Proxies cleanly during array sorting operations
+  let newArr = [...allTasks]; 
+  
   newArr.sort((a, b) => {
-    if (direction === "asc") {
-      return a.title.localeCompare(b.title);
-    } else {
-      return b.title.localeCompare(a.title);
-    }
+    if (direction === "asc") return a.title.localeCompare(b.title);
+    else return b.title.localeCompare(a.title);
   });
+  
   allTasks = newArr;
   taskObserver.notify("sort", { direction });
 }
