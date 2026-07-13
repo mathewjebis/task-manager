@@ -1,37 +1,74 @@
-Simple Task Manager
-[Live Website](https://mathewjebis.github.io/task-manager/)
+# Task Manager
 
+A vanilla JavaScript task manager built with modular ES6 code — no frameworks, no build step. Focused on demonstrating core JavaScript fundamentals cleanly: modules, the Observer pattern, `Proxy`/`Reflect` for validation, generators, and browser APIs like `IntersectionObserver`.
 
-A clean and helpful dashboard that makes organizing your daily work easy. It automatically saves your changes, highlights important jobs with colored priority labels, and comes with a built in dark mode button.
+## Live Demo
 
-Great Features
+[View Live Website](https://mathewjebis.github.io/task-manager/)
 
-Easy Task Tracking: You can create new tasks, update their names, mark them done, or wipe them from the list.
+## Features
 
-Colorful Priority Labels: The system automatically assigns a High, Medium, or Low priority level to every task and displays it as a colored tag.
+- **Task CRUD** — add, inline-edit, complete, and delete tasks
+- **User-set priority** — choose High/Medium/Low when adding a task; demo tasks pulled from the API get a fallback priority for display purposes
+- **Priority filtering** — filter the list to All / High / Medium / Low
+- **Live stats** — total, completed, and pending task counts, updated in real time
+- **Search** — debounced live search across task titles
+- **Sort** — alphabetical A–Z / Z–A, throttled to prevent rapid re-sorts
+- **Dark mode** — toggle persists across sessions via `localStorage`
+- **Data persistence** — all tasks saved to `localStorage`; falls back to a public demo API on first load
+- **Clear all** — wipes all tasks and storage, with a confirmation step
+- **Storage size indicator** — shows current `localStorage` usage in KB
+- **Edit history** — tracks and displays how many times a task has been edited
+- **Entrance animations** — task rows animate in on scroll via `IntersectionObserver`
+- **In-app notifications** — a banner for errors, info, and success messages (no native `alert()`/`prompt()` popups)
 
-Smart Progress Bar: A live status readout shows your total number of tasks along with exactly how many are completed or pending.
+## Technologies Used
 
-Instant Search and Sort: Type in the search box to find tasks on the fly or click the alphabet buttons to instantly arrange your list from A to Z or Z to A.
+- Vanilla JavaScript (ES6 modules, no framework)
+- `Proxy` / `Reflect` for runtime data validation
+- Observer pattern for decoupled state-change notifications
+- Generators (`function*`) for task iteration
+- `IntersectionObserver` API for scroll animations
+- CSS custom properties for theming (light/dark mode)
+- `localStorage` for persistence
+- [JSONPlaceholder](https://jsonplaceholder.typicode.com/) as a demo data source on first load
 
-Smooth Dark Mode: Click the moon or sun icon at any time to turn the dark theme on or off. The app remembers your choice the next time you open it.
+## Project Structure
 
-Automatic Saving: All your tasks are safely saved into your web browser so you never lose your progress when you close the window.
+```
+├── index.html
+├── index.css
+├── main.js              # Wires up DOM events and reacts to state changes
+└── modules/
+    ├── api.js           # Fetches demo tasks + users from JSONPlaceholder
+    ├── errors.js        # Custom error classes + in-app banner notifications
+    ├── priority.js       # Priority color mapping and fallback logic
+    ├── storage.js        # localStorage read/write/clear/size helpers
+    ├── tasks.js          # Core task state, validation, and business logic
+    └── ui.js              # Renders tasks and stats to the DOM
+```
 
-Helpful Warnings: A notification bar slides into view at the top of the card if you leave a text box empty or if there is a connection problem.
+## How to Run
 
-How the Files Work
+Because this project uses ES6 modules (`type="module"`), it needs to be served over HTTP rather than opened directly as a file — browsers block module imports from the `file://` protocol.
 
-index.html creates the basic page structure, buttons, and input fields.
+```bash
+git clone https://github.com/mathewjebis/task-manager.git
+cd task-manager
+```
 
-index.css adds the colors, curves, background gradients, and dark mode look.
+Then serve it with any static server, for example the VS Code "Live Server" extension, or:
 
-main.js works behind the scenes to run the app and start all the tools.
+```bash
+npx serve .
+```
 
-The modules folder holds smaller specialized files that check for errors, sort priority colors, save tasks to memory, and download starter data.
+## Notes on scope
 
-How to Run the Project
+This is a client-only demo — there's no backend, and data lives entirely in the browser's `localStorage`. A [separate fullstack project](https://github.com/mathewjebis) with real authentication and a database is in progress to demonstrate backend skills.
 
-1. Copy the code files onto your computer and keep them in their original folders.
-2. Because this application uses advanced modular code, you will need to open the project folder using a simple local web server like Live Server in VS Code.
-3. Open the server link in your favorite web browser to see the app run instantly.
+## Author
+
+**S. Mathew Jebis**
+
+- GitHub: [mathewjebis](https://github.com/mathewjebis)

@@ -22,13 +22,13 @@ body {
   margin: 0;
   display: flex;
   justify-content: center;
-  padding-top: 50px;
+  padding: 30px 12px;
   transition: background-color 0.3s ease;
 }
 .container {
   background: var(--container-bg);
   position: relative;
-  width: 90%;
+  width: 100%;
   max-width: 450px;
   padding: 30px;
   border-radius: 15px;
@@ -40,7 +40,7 @@ h1 {
   color: var(--text-main);
   text-align: center;
 }
-p {
+#stats {
   text-align: center;
   font-size: 13px;
   color: var(--text-sub);
@@ -68,9 +68,7 @@ p {
   background: var(--bg-color);
   border-color: var(--text-sub);
 }
-.error-banner {
-  background: #ffe0e0;
-  color: #e74c3c;
+.banner {
   padding: 10px 15px;
   border-radius: 8px;
   margin-bottom: 10px;
@@ -78,12 +76,28 @@ p {
   font-weight: bold;
   display: none;
   text-align: center;
-  border: 1px solid #e74c3c;
+  border: 1px solid transparent;
 }
-.error-banner.show {
+.banner.show {
   display: block;
 }
-input {
+.banner.error {
+  background: #ffe0e0;
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+.banner.info {
+  background: #e0f0ff;
+  color: #2980b9;
+  border-color: #2980b9;
+}
+.banner.success {
+  background: #e0f7e9;
+  color: #27ae60;
+  border-color: #27ae60;
+}
+input,
+select {
   width: 100%;
   padding: 12px;
   border: 2px solid #e0e0e0;
@@ -91,18 +105,27 @@ input {
   font-size: 16px;
   box-sizing: border-box;
   transition: border-color 0.3s;
+  font-family: inherit;
+  background: var(--container-bg);
+  color: var(--text-main);
 }
-input:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #3498db;
 }
 .input-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
 }
 .input-group input {
-  flex: 1;
+  flex: 1 1 140px;
+}
+.input-group select {
+  flex: 0 0 110px;
+  width: auto;
 }
 .input-group button {
   padding: 10px 20px;
@@ -125,28 +148,33 @@ input:focus {
   margin-top: 20px;
 }
 li {
-  background: #f8f9fa;
   margin-bottom: 10px;
   padding: 12px 15px;
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #eee;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
 }
-li span.title {
-  font-size: 14px;
-  color: #555;
+li .title-wrap {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+li span.title {
+  font-size: 14px;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--text-main);
+}
+li span.meta {
+  font-size: 11px;
+  color: var(--text-sub);
 }
 li span.badge {
   font-size: 11px;
@@ -185,13 +213,33 @@ li button.edit-btn {
 li button.edit-btn:hover {
   background-color: #2980b9;
 }
+li button.save-btn {
+  background-color: #2ecc71;
+  margin-right: 5px;
+}
+li button.save-btn:hover {
+  background-color: #27ae60;
+}
+li button.cancel-btn {
+  background-color: #95a5a6;
+}
+li button.cancel-btn:hover {
+  background-color: #7f8c8d;
+}
+li input.edit-input {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px;
+  font-size: 14px;
+}
 .sort-buttons {
   display: flex;
   gap: 10px;
   margin-top: 10px;
+  flex-wrap: wrap;
 }
 .sort-buttons button {
-  flex: 1;
+  flex: 1 1 45%;
   padding: 10px;
   border: none;
   border-radius: 8px;
@@ -205,17 +253,63 @@ li button.edit-btn:hover {
 .sort-buttons button:hover {
   background-color: #2980b9;
 }
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.filter-buttons button {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.filter-buttons button:hover {
+  border-color: #3498db;
+  color: #3498db;
+}
+.filter-buttons button.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#storage-info {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+.clear-btn {
+  background-color: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.clear-btn:hover {
+  background-color: #e74c3c;
+  color: white;
+}
 @media (max-width: 480px) {
   .container {
     padding: 15px;
-  }
-  .sort-buttons {
-    flex-wrap: wrap;
-  }
-  .sort-buttons button {
-    flex: 1 1 45%;
-    font-size: 12px;
-    padding: 8px;
   }
   li {
     padding: 8px 10px;

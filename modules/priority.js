@@ -1,3 +1,6 @@
+// Fallback priority for tasks that don't have an explicit priority set
+// (e.g. tasks pulled in from the demo API on first load). User-created
+// tasks now set their own priority via the priority select in the UI.
 export function assignPriority(id) {
   if (id % 3 === 0) return "High";
   if (id % 3 === 1) return "Medium";

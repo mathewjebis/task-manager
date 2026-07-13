@@ -28,13 +28,21 @@ export class StorageError extends AppError {
   }
 }
 
-export function showError(message, duration = 3000) {
-  let banner = document.getElementById("error-banner");
+// Generic banner for error / info / success messages.
+// Replaces the old alert()-based flow for checkTasks/getNextTask.
+export function showBanner(message, type = "error", duration = 3000) {
+  let banner = document.getElementById("banner");
   banner.textContent = message;
-  banner.classList.add("show");
-  setTimeout(() => {
+  banner.className = "banner show " + type;
+  clearTimeout(showBanner._timer);
+  showBanner._timer = setTimeout(() => {
     banner.classList.remove("show");
   }, duration);
+}
+
+// Kept for backwards compatibility with existing call sites.
+export function showError(message, duration = 3000) {
+  showBanner(message, "error", duration);
 }
 
 export function handleError(error) {
