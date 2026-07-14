@@ -128,8 +128,12 @@ taskObserver.subscribe((event, data) => {
   }
 
   if (dataMutatingEvents.has(event)) {
-    saveToLocal(getAllTasks());
-    updateStorageInfo(getLocalSize());
+    try {
+      saveToLocal(getAllTasks());
+      updateStorageInfo(getLocalSize());
+    } catch (error) {
+      handleError(error);
+    }
   }
   applyFiltersAndRender();
 });

@@ -1,5 +1,13 @@
+import { StorageError } from "./errors.js";
+
 export function saveToLocal(allTasks) {
-  localStorage.setItem("myTasks", JSON.stringify(allTasks));
+  try {
+    localStorage.setItem("myTasks", JSON.stringify(allTasks));
+  } catch {
+    throw new StorageError(
+      "Could not save tasks — your browser's storage may be full or unavailable.",
+    );
+  }
 }
 
 export function loadFromLocal() {

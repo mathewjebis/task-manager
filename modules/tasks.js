@@ -1,6 +1,5 @@
 import { saveToLocal, clearLocal } from "./storage.js";
 import { assignPriority } from "./priority.js";
-import { ValidationError } from "./errors.js";
 
 let allTasks = [];
 let editingId = null;
@@ -19,13 +18,10 @@ const taskObserver = {
 };
 
 const filterStrategies = {
-  all: (tasks) => tasks.filter((task) => !task.completed),
-  high: (tasks) =>
-    tasks.filter((task) => !task.completed && getPriority(task) === "High"),
-  medium: (tasks) =>
-    tasks.filter((task) => !task.completed && getPriority(task) === "Medium"),
-  low: (tasks) =>
-    tasks.filter((task) => !task.completed && getPriority(task) === "Low"),
+  all: (tasks) => tasks,
+  high: (tasks) => tasks.filter((task) => getPriority(task) === "High"),
+  medium: (tasks) => tasks.filter((task) => getPriority(task) === "Medium"),
+  low: (tasks) => tasks.filter((task) => getPriority(task) === "Low"),
 };
 
 let currentStrategy = "all";
@@ -60,16 +56,28 @@ export function* taskGenerator(tasks) {
   }
 }
 
+// Persisted across calls so repeated clicks cycle through pending tasks
+// one at a time, instead of a fresh generator restarting at the first
+// pending task every time. Reset whenever the task list changes.
+let pendingTaskGen = null;
+
+function resetTaskGenerator() {
+  pendingTaskGen = null;
+}
+
 // Returns a message instead of alert()-ing directly, so the UI layer
 // decides how to display it (banner, in this app).
 export function getNextTaskMessage() {
-  let pending = allTasks.filter((task) => !task.completed);
-  let gen = taskGenerator(pending);
-  let next = gen.next();
+  if (!pendingTaskGen) {
+    let pending = allTasks.filter((task) => !task.completed);
+    pendingTaskGen = taskGenerator(pending);
+  }
+  let next = pendingTaskGen.next();
   if (!next.done) {
     return "Next Task: " + next.value.title;
   }
-  return "No pending tasks!";
+  pendingTaskGen = null;
+  return "No more pending tasks — starting over next click.";
 }
 
 export function checkTasksMessage() {
@@ -94,7 +102,8 @@ export function applyFiltersAndRender() {
 }
 
 export function deleteTask(id) {
-  allTasks = allTasks.filter((task) => task.id != id);
+  allTasks = allTasks.filter((task) => task.id !== id);
+  resetTaskGenerator();
   taskObserver.notify("delete", { id });
 }
 
@@ -136,6 +145,7 @@ export function completeTask(id) {
   if (!task) return;
 
   task.completed = !task.completed;
+  resetTaskGenerator();
   taskObserver.notify("complete", { id, completed: task.completed });
 }
 
@@ -161,6 +171,7 @@ export function addTask() {
 
     allTasks.unshift(newTask);
     input.value = "";
+    resetTaskGenerator();
     taskObserver.notify("add", newTask);
   } catch (error) {
     taskObserver.notify("proxy-error", error);
@@ -184,6 +195,7 @@ export function sortTasks(direction) {
 export function clearAllTasks() {
   allTasks = [];
   clearLocal();
+  resetTaskGenerator();
   taskObserver.notify("clear", {});
 }
 
